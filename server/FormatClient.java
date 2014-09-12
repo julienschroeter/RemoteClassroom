@@ -1,4 +1,4 @@
-package listener;
+package server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,8 +34,8 @@ public class FormatClient {
 			}
 			PrintWriter out = new PrintWriter(_s.getOutputStream());
 			
-			if(_suceeded) out.write("ok");
-			if(!_suceeded) out.write("fail");
+			if(_suceeded) out.println("ok");
+			if(!_suceeded) out.println("fail");
 			
 			out.flush();
 			out.close();
@@ -48,13 +48,14 @@ public class FormatClient {
 	@SuppressWarnings("unused")
 	boolean format(){
 		boolean sucessfull = true;
-		try {
-			final Process p = Runtime.getRuntime().exec("cmd /c start cmd.exe /K \"del e:\\* /s /q && exit \"");
-			sucessfull = true;
-		} catch (IOException e) {
+	//	try {
+			//final Process p = Runtime.getRuntime().exec("cmd /c start cmd.exe /K \"del e:\\* /s /q && exit \"");
+		System.out.println("FORMAT");	
+		sucessfull = true;
+		/*} catch (IOException e) {
 			e.printStackTrace();
 			sucessfull = false;
-		}
+		}*/
 		
 		return sucessfull;
 	}

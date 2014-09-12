@@ -1,4 +1,4 @@
-package app;
+package controller;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.regex.Pattern;
@@ -53,7 +54,7 @@ public class FormatController {
 		
 		JPanel buttonPane = new JPanel();
 		
-		JButton saveButton = new JButton("Änderungen speichern");
+		JButton saveButton = new JButton("ï¿½nderungen speichern");
 		saveButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent me)
@@ -78,7 +79,7 @@ public class FormatController {
 		});
 		buttonPane.add(saveButton);
 		
-		final JButton executeButton = new JButton("Ausführen");
+		final JButton executeButton = new JButton("Ausfï¿½hren");
 		executeButton.addActionListener(new ActionListener()
 		{
 			@Override
@@ -98,18 +99,25 @@ public class FormatController {
 							if(Pattern.matches("\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b", ip))
 							{
 								try {
-									sender = new Socket(ip, _port);
-									PrintWriter out = new PrintWriter(sender.getOutputStream());
-									out.print("format");
-									out.flush();
-									out.close();
-									// Getting feedback
-									BufferedReader in = new BufferedReader(new InputStreamReader(sender.getInputStream()));
-									if( ! in.readLine().equals("ok")){
+									try {
+										sender = new Socket(ip, _port);
+										PrintWriter out = new PrintWriter(sender.getOutputStream());
+										out.print("format");
+										out.flush();
+										out.close();
+										
+										// Getting feedback
+										BufferedReader in = new BufferedReader(new InputStreamReader(sender.getInputStream()));
+										if( ! in.readLine().equals("ok")){
+											failed[i++] = ip;
+										}
+										
+										sender.close();
+									}
+									catch(ConnectException ce)
+									{
 										failed[i++] = ip;
 									}
-									
-									sender.close();
 								} catch (UnknownHostException e) {
 									e.printStackTrace();
 								} catch (IOException e) {
@@ -126,7 +134,7 @@ public class FormatController {
 							output += failed[j] + "\n";
 							
 						if(i > 0)
-							JOptionPane.showMessageDialog(frame, "Einige Computer konnten nicht angesteuert werden: \n" + output, "Fehler: Daten NICHT gelöscht", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(frame, "Einige Computer konnten nicht angesteuert werden: \n" + output, "Fehler: Daten NICHT gelï¿½scht", JOptionPane.ERROR_MESSAGE);
 						
 						// reactive button
 						executeButton.setEnabled(true);
