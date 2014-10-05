@@ -104,7 +104,24 @@ public class ClassroomController {
 	editmenu.add(new AbstractAction("IP-Adresse löschen"){
 	   @Override
 	   public void actionPerformed(ActionEvent ae) {
-	       
+	       if(_ipTbl.getSelectedRowCount() != 1) {
+		    JOptionPane.showMessageDialog(_frame, "Bitte wählen Sie einen Eintrag aus.", "Fehler", JOptionPane.ERROR_MESSAGE);
+		} else {
+		    int deleteConfirmation = JOptionPane.showConfirmDialog(_frame, "Wollen Sie diese IP-Adresse wirklich löschen?", "Bestätigung erforderlich", JOptionPane.YES_NO_OPTION);
+		    if(deleteConfirmation == JOptionPane.OK_OPTION) {
+			int id = (Integer)_ipTbl.getValueAt(
+				_ipTbl.getSelectedRow(),
+				0);
+			try {
+			    PreparedStatement psDeleteEntry = _c.prepareStatement("DELETE FROM `IP_ADDR` WHERE `ID`=?");
+			    psDeleteEntry.setInt(1, id);
+			    psDeleteEntry.execute();
+			    controller.initializeData();
+			} catch (SQLException e) {
+			    e.printStackTrace();
+			}
+		    }
+		}
 	   }
 	});
 	
