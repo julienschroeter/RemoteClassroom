@@ -17,7 +17,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
-import controller.Datatypes.IPAddr;
 
 public class ClassroomController {    
     private String _frameTitle = "Remote Classroom";
@@ -42,7 +41,7 @@ public class ClassroomController {
 	filemenu.add(new AbstractAction("Neue IP-Adresse"){
 	    @Override
 	    public void actionPerformed(ActionEvent ae) {
-		
+		new IpaddrHandler.Form(_c);
 	    }
 	});
 	

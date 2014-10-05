@@ -9,17 +9,17 @@ import java.net.Socket;
 
 import javax.swing.JOptionPane;
 
-public class FormatClient {
+public class ClassroomClient {
 	ServerSocket _ss;
 	Socket _s;
 	boolean _suceeded;
 	
 	public static void main(String[] args) {
-		new FormatClient();
+		new ClassroomClient();
 		System.out.println("dr");
 	}
 	
-	public FormatClient() {
+	public ClassroomClient() {
 		init();
 	}
 	

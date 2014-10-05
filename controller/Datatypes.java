@@ -13,7 +13,11 @@ public class Datatypes {
 	private String _ipaddr, _notes;
 	private boolean _status;
 	
-	public IPAddr (int id, String ipaddr, String notes, boolean status) {
+	public IPAddr() {
+	    
+	}
+	
+	public IPAddr(int id, String ipaddr, String notes, boolean status) {
 	    this._id = id;
 	    this._ipaddr = ipaddr;
 	    this._notes = notes;
