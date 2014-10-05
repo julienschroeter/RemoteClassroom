@@ -3,6 +3,7 @@ package controller;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,11 +12,14 @@ import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+
+import controller.Datatypes.IPAddr;
 
 
 public class ClassroomController {    
@@ -25,8 +29,12 @@ public class ClassroomController {
     private final int _port = 6868;
     private Connection _c = null;
     
+    private JFrame _frame;
+    
     private DefaultTableModel _ipTblModel;
     private JTable _ipTbl;
+    
+    private ClassroomController controller = this;
     
     public ClassroomController(Connection c) {
 	this._c = c;
@@ -41,7 +49,7 @@ public class ClassroomController {
 	filemenu.add(new AbstractAction("Neue IP-Adresse"){
 	    @Override
 	    public void actionPerformed(ActionEvent ae) {
-		new IpaddrHandler.Form(_c);
+		new IpaddrHandler.Form(_c, controller);
 	    }
 	});
 	
@@ -53,10 +61,9 @@ public class ClassroomController {
 	});
 	
 	filemenu.add(new AbstractAction("Beenden") {
-	    
 	    @Override
-	    public void actionPerformed(ActionEvent e) {
-		
+	    public void actionPerformed(ActionEvent ae) {
+		System.exit(0);
 	    }
 	});
 	
@@ -65,24 +72,71 @@ public class ClassroomController {
 	
 	// Edit
 	JMenu editmenu = new JMenu("Bearbeiten");
+	editmenu.add(new AbstractAction("IP-Adresse bearbeiten"){
+	    @Override
+	    public void actionPerformed(ActionEvent ae) {
+		if(_ipTbl.getSelectedRowCount() != 1) {
+		    JOptionPane.showMessageDialog(_frame, "Bitte wählen Sie einen Eintrag aus.", "Fehler", JOptionPane.ERROR_MESSAGE);
+		} else {
+		    int id = (Integer)_ipTbl.getValueAt(
+			    _ipTbl.getSelectedRow(),
+			    0);
+		    try {
+			PreparedStatement psGetEntry = _c.prepareStatement("SELECT * FROM `IP_ADDR` WHERE `ID`=?");
+			psGetEntry.setInt(1, id);
+			ResultSet rsEntry = psGetEntry.executeQuery();
+			IPAddr ipEntry = null;
+			while(rsEntry.next()) {
+			    ipEntry = new IPAddr(
+				    rsEntry.getInt("ID"),
+				    rsEntry.getString("IP_ADDR"),
+				    rsEntry.getString("NOTES"),
+				    rsEntry.getBoolean("STATUS"));
+			}
+			new IpaddrHandler.Form(_c, controller, ipEntry);
+		    } catch (SQLException e) {
+			e.printStackTrace();
+		    }
+		}
+	    }
+	});
+	
+	editmenu.add(new AbstractAction("IP-Adresse löschen"){
+	   @Override
+	   public void actionPerformed(ActionEvent ae) {
+	       
+	   }
+	});
 	
 	
 	_menubar.add(editmenu);
 	
 	// Command
 	JMenu commandmenu = new JMenu("Befehl");
+	commandmenu.add(new AbstractAction("Befehl ausführen") {
+	    @Override
+	    public void actionPerformed(ActionEvent ae) {
+		
+	    }
+	});
 	
+	commandmenu.add(new AbstractAction("Befehle verwalten"){
+	    @Override
+	    public void actionPerformed(ActionEvent ae) {
+		
+	    }
+	});
 	
 	_menubar.add(commandmenu);
     }
     
     private void constructFrame() {
-	final JFrame frame = new JFrame(_frameTitle);
-	frame.setSize(_frameSize);
-	frame.setJMenuBar(_menubar);
+	_frame = new JFrame(_frameTitle);
+	_frame.setSize(_frameSize);
+	_frame.setJMenuBar(_menubar);
 	
 	// TODO stop database on close
-	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	
 	// INITIALIZE JTABLE FOR IP_ADDR
 	String [] cols = {
@@ -112,13 +166,15 @@ public class ClassroomController {
 	
 	JScrollPane scrollpane = new JScrollPane(_ipTbl);
 	
-	frame.add(scrollpane);
-	frame.pack();
+	_frame.add(scrollpane);
+	_frame.pack();
 	
-	frame.setVisible(true);
+	_frame.setVisible(true);
     }
     
-    private void initializeData() {
+    public void initializeData() {
+	_ipTblModel.setRowCount(0);
+	
 	try {
 	    Statement stIPAddr = _c.createStatement();
 	    ResultSet rsIPAddr = stIPAddr.executeQuery("SELECT * FROM `IP_ADDR`");

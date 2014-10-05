@@ -48,7 +48,7 @@ public class Datatypes {
 	    this._notes = notes;
 	}
 
-	public boolean isStatus() {
+	public boolean getStatus() {
 	    return _status;
 	}
 

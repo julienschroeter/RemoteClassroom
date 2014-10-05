@@ -34,11 +34,11 @@ public class IpaddrHandler {
     public static class Form {
 	Connection _c;
 	
-	public Form(Connection c) {
-	    this(c, null);
+	public Form(Connection c, ClassroomController controller) {
+	    this(c, controller, null);
 	}
 
-	public Form(Connection c, final IPAddr entry) {
+	public Form(Connection c, final ClassroomController controller, final IPAddr entry) {
 	    this._c = c;
 	    
 	    // create form
@@ -48,12 +48,12 @@ public class IpaddrHandler {
 	    JPanel inputPanel = new JPanel();
 	    inputPanel.setLayout(new GridLayout(2,2));
 	    inputPanel.add(new JLabel("IP-Adresse: "));
-	    final JTextField ipAddrTextfield = new JTextField();
+	    final JTextField ipAddrTextfield = new JTextField((entry == null) ? "" : entry.getIpaddr());
 	    ipAddrTextfield.setColumns(16);
 	    inputPanel.add(ipAddrTextfield);
 	    
 	    inputPanel.add(new JLabel("Anmerkungen: "));
-	    final JTextField notesTextfield = new JTextField();
+	    final JTextField notesTextfield = new JTextField((entry == null) ? "" : entry.getNotes());
 	    inputPanel.add(notesTextfield);
 	    formFrame.add(inputPanel);
 	    
@@ -61,6 +61,7 @@ public class IpaddrHandler {
 	    oneColPanel.setLayout(new GridLayout(2,1));
 	    
 	    final JCheckBox statusCheckbox = new JCheckBox("Aktiviert");
+	    statusCheckbox.setSelected((entry == null) ? true : entry.getStatus());
 	    oneColPanel.add(statusCheckbox);
 	    
 	    JButton saveBtn = new JButton("Speichern");
@@ -83,12 +84,27 @@ public class IpaddrHandler {
 			    psAddIp.setString(2, notes);
 			    psAddIp.setBoolean(3, status);
 			    psAddIp.execute();
+			    formFrame.dispose();
+			    controller.initializeData();
 			} catch (SQLException e1) {
 			    e1.printStackTrace();
 			}
 		    } else {
 			// just editing
+			int id = entry.getId();
 			
+			try {
+			    PreparedStatement psEditIp = _c.prepareStatement("UPDATE `IP_ADDR` SET `IP_ADDR`=?, `NOTES`=?,`STATUS`=? WHERE `ID`=?");
+			    psEditIp.setString(1, ipAddr);
+			    psEditIp.setString(2, notes);
+			    psEditIp.setBoolean(3, status);
+			    psEditIp.setInt(4, id);
+			    psEditIp.execute();
+			    formFrame.dispose();
+			    controller.initializeData();
+			} catch (SQLException e1) {
+			    e1.printStackTrace();
+			}
 		    }
 		}
 	    });
