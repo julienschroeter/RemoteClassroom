@@ -55,8 +55,49 @@ public class Datatypes {
 	public void setStatus(boolean status) {
 	    this._status = status;
 	}
+    }
+    
+    public static class Command {
+	private int _id;
+	private String _label, _command;
 	
+	public Command() {
+	    
+	}
 	
+	public Command(int id, String label, String command) {
+	   this._id = id;
+	   this._label = label;
+	   this._command = command;
+	}
+
+	public int getId() {
+	    return _id;
+	}
+
+	public void setId(int id) {
+	    this._id = id;
+	}
+
+	public String getLabel() {
+	    return _label;
+	}
+
+	public void setLabel(String label) {
+	    this._label = label;
+	}
+
+	public String getCommand() {
+	    return _command;
+	}
+
+	public void setCommand(String command) {
+	    this._command = command;
+	}
 	
+	@Override
+	public String toString() {
+	    return this._label;
+	}
     }
 }

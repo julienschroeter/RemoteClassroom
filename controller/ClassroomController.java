@@ -53,12 +53,23 @@ public class ClassroomController {
 	    }
 	});
 	
+	filemenu.addSeparator();
+	
+	filemenu.add(new AbstractAction("†ber ...") {
+	    @Override
+	    public void actionPerformed(ActionEvent e) {
+		JOptionPane.showMessageDialog(_frame, "(c) Copyright 2014 \n TimoNeon und Julien Schroeter");
+	    }
+	});
+	
 	filemenu.add(new AbstractAction("Einstellungen"){
 	   @Override
 	   public void actionPerformed(ActionEvent ae) {
 	       
 	   }
 	});
+	
+	filemenu.addSeparator();
 	
 	filemenu.add(new AbstractAction("Beenden") {
 	    @Override
@@ -140,7 +151,7 @@ public class ClassroomController {
 	commandmenu.add(new AbstractAction("Befehle verwalten"){
 	    @Override
 	    public void actionPerformed(ActionEvent ae) {
-		
+		new CommandManager(_c);
 	    }
 	});
 	
