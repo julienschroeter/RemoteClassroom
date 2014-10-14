@@ -4,6 +4,7 @@
 package controller;
 
 /**
+ * Class which holds data models
  * @author Julien Schroeter
  *
  */
