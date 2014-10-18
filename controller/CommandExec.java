@@ -8,11 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ConnectException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -182,38 +178,49 @@ public class CommandExec {
 		        		progressBar.setMaximum(ips.size());
 		    			
 		    			for(String ip : ips) {
-		    			    progressBar.setValue(progressBar.getValue()+1);
-		    			    InetAddress target = InetAddress.getByName(ip);
-		    			    if(target.isReachable(500)) {
-		        			    sender = new Socket(ip, 6868);
-		        			    PrintWriter out = new PrintWriter(sender.getOutputStream());
-		        			    out.print(cmd.getCommand());
-		        			    out.flush();
-		        			    out.close();
-		        			    
-		        			    // Getting feedback
-		        			    BufferedReader in = new BufferedReader(new InputStreamReader(sender.getInputStream()));
-		        			    if( ! in.readLine().equals("ok")) {
-		        				msgField.append("\n" + ip + " - Keine Antwort");
-		        			    }
-		    			    } else {
-		    				msgField.append("\n" + ip + " - Nicht gefunden");
-		    			    }
-		    			    execFrame.pack();
-		    			}
+                            try {
+                                progressBar.setValue(progressBar.getValue()+1);
+                                InetAddress target = InetAddress.getByName(ip);
+                                if(target.isReachable(500)) {
+                                    sender = new Socket(ip, 6868);
+                                    PrintWriter out = new PrintWriter(sender.getOutputStream());
+                                    out.print(cmd.getCommand());
+                                    out.flush();
+                                    out.close();
+
+                                    // Getting feedback
+                                    BufferedReader in = new BufferedReader(new InputStreamReader(sender.getInputStream()));
+                                    if( ! in.readLine().equals("ok")) {
+                                        msgField.append("\n" + ip + " - Ung\u00fcltige Antwort");
+                                    }
+                                    in.close();
+                                } else {
+                                    msgField.append("\n" + ip + " - Nicht gefunden");
+                                }
+                                execFrame.pack();
+                            } catch (ConnectException ex) {
+                                msgField.append("\n" + ip + " - Keine Antwort");
+                                ex.printStackTrace();
+                            } catch (UnknownHostException e) {
+                                msgField.append("\n" + ip + " - Keine Antwort");
+                                e.printStackTrace();
+                            } catch (NullPointerException ex) {
+                                ex.printStackTrace();
+                            } catch (SocketException ex) {
+                                ex.printStackTrace();
+                            }finally {
+                                execFrame.pack();
+                            }
+                        }
 		    			
 		    			sender.close();
-	    		    } catch (NullPointerException ex) {
-	    		    	ex.printStackTrace();
-	    		    } catch(ConnectException ce) {
-	    		    	ce.printStackTrace();
-	    		    } catch (UnknownHostException e) {
-	    		    	e.printStackTrace();
 	    		    } catch (IOException e) {
-	    		    	e.printStackTrace();
-	    		    } catch (SQLException e1) {
-	    		    	e1.printStackTrace();
-	    		    } finally {
+                        JOptionPane.showMessageDialog(null, "Wir haben ein Problem! [IOException]");
+                        e.printStackTrace();
+                    } catch (SQLException e1) {
+                        JOptionPane.showMessageDialog(null, "Wir haben ein Problem! [SQLException]");
+                        e1.printStackTrace();
+                    } finally {
 		    			ctrlBtn.setText("Dialog schlie\u00dfen");
 		    			ctrlBtn.setEnabled(true);
 		    			ctrlBtn.addActionListener(new ActionListener() {
