@@ -40,18 +40,17 @@ public class ClassroomClient {
                 CmdParser parser = new CmdParser();
 
                 String tmp;
-                boolean success = false;
                 while((tmp=in.readLine()) != null) {
                     if(parser.parseRemoteClassroomCommand(tmp)) {
                         execRemoteClassroomCommand(tmp);
-                        success = true;
+                        out.print("ok");
                     } else if(parser.parse(tmp)) {
                         execGeneralCommand(tmp);
-                        success = true;
+                        out.print("ok");
+                    } else {
+                        out.print("fail");
                     }
                 }
-
-                out.print(success ? "ok" : "fail");
                 out.flush();
 
                 in.close();

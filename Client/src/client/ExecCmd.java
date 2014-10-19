@@ -16,10 +16,17 @@ public class ExecCmd {
                 System.exit(0);
             }
         });
+        put("hello", new RemoteClassroomCmd() {
+            @Override
+            public void action() {
+                System.out.println("Hello World!");
+            }
+        });
     }};
 
 
     public static void execRemoteClassroomCommand(String cmd) {
+        cmd = cmd.substring(("sys://").length());
         remoteClassroomCmds.get(cmd).action();
     }
 

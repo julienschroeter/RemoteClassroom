@@ -18,10 +18,10 @@ public class Setup {
     private static int _nTblsExpected = 3;
     
     private static String[] _tblsCreateQueries = {
-	"CREATE TABLE 'IP_ADDR' ('ID' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , 'IP_ADDR' VARCHAR NOT NULL , 'NOTES' VARCHAR, 'status' BOOL DEFAULT 1)",
-	"CREATE TABLE 'COMMANDS' ('ID' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , 'LABEL' VARCHAR NOT NULL , 'COMMAND' VARCHAR NOT NULL)",
-	"CREATE TABLE 'SYS_PREFERENCES' ('KEY' VARCHAR NOT NULL  UNIQUE , 'VALUE' VARCHAR)",
-	"INSERT INTO `COMMANDS` (`LABEL`, `COMMAND`) VALUES ('E:\\ formatieren', 'cmd /c start cmd.exe /K \"del e:\\* /s /q && exit \"')"
+        "CREATE TABLE 'IP_ADDR' ('ID' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , 'IP_ADDR' VARCHAR NOT NULL , 'NOTES' VARCHAR, 'status' BOOL DEFAULT 1)",
+        "CREATE TABLE 'COMMANDS' ('ID' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , 'LABEL' VARCHAR NOT NULL , 'COMMAND' VARCHAR NOT NULL)",
+        "CREATE TABLE 'SYS_PREFERENCES' ('KEY' VARCHAR NOT NULL  UNIQUE , 'VALUE' VARCHAR)",
+        "INSERT INTO `COMMANDS` (`LABEL`, `COMMAND`) VALUES ('E:\\ formatieren', 'cmd /c start cmd.exe /K \"del e:\\* /s /q && exit \"'), ('Clientanwendung beenden', 'sys://quit'), ('Verfügbarkeit testen', 'sys://hello')"
     };
     
     /**
