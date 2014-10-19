@@ -64,16 +64,16 @@ public class ClassroomController {
 		filemenu.add(new AbstractAction("\u00dcber ...") {
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
-			JOptionPane.showMessageDialog(_frame, "(c) Copyright 2014 \n TimoNeon und Julien Schroeter");
+			JOptionPane.showMessageDialog(_frame, "ClassroomController\n-DEV BUILD-\n(c) Copyright 2014 \n TimoNeon und Julien Schroeter", "\u00dcber ClassroomController", JOptionPane.PLAIN_MESSAGE);
 		    }
 		});
 		
-		filemenu.add(new AbstractAction("Einstellungen"){
+		/*filemenu.add(new AbstractAction("Einstellungen"){
 		   @Override
 		   public void actionPerformed(ActionEvent ae) {
 		       
 		   }
-		});
+		});*/
 		
 		filemenu.addSeparator();
 		

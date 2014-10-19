@@ -7,57 +7,62 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import javax.swing.JOptionPane;
+import static client.ExecCmd.execGeneralCommand;
+import static client.ExecCmd.execRemoteClassroomCommand;
 
+/**
+ * Starter for application
+ * @author TimoNeon, Julien Schroeter
+ */
 public class ClassroomClient {
-	ServerSocket _ss;
-	Socket _s;
-	boolean _suceeded;
-	
-	public static void main(String[] args) {
-		new ClassroomClient();
-		System.out.println("dr");
-	}
-	
-	public ClassroomClient() {
-		init();
-	}
-	
-	void init(){
-		try {
-			_ss = new ServerSocket(6868);
-			_s = _ss.accept();
-			BufferedReader in = new BufferedReader(new InputStreamReader(_s.getInputStream()));
-			String tmp;
-			while((tmp=in.readLine())!=null){
-				if(tmp.equalsIgnoreCase("format")) _suceeded = format();
-			}
-			PrintWriter out = new PrintWriter(_s.getOutputStream());
-			
-			if(_suceeded) out.println("ok");
-			if(!_suceeded) out.println("fail");
-			
-			out.flush();
-			out.close();
-			
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(null, "Der Port 6868 wir bereits benutzt");
-		}
-	}
-	
-	@SuppressWarnings("unused")
-	boolean format(){
-		boolean sucessfull = true;
-	//	try {
-			//final Process p = Runtime.getRuntime().exec("cmd /c start cmd.exe /K \"del e:\\* /s /q && exit \"");
-		System.out.println("FORMAT");	
-		sucessfull = true;
-		/*} catch (IOException e) {
-			e.printStackTrace();
-			sucessfull = false;
-		}*/
-		
-		return sucessfull;
-	}
+    public final int PORT = 6868;
 
+    /**
+     * Starter for application
+     * @param args
+     */
+    public static void main(String[] args) {
+        ClassroomClient app = new ClassroomClient();
+        app.listener();
+    }
+
+    /**
+     * Listener and treats commands from ClassroomController
+     */
+    private void listener() {
+        while(true) {
+            try {
+                ServerSocket ss = new ServerSocket(PORT);
+                Socket sock = ss.accept();
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+                PrintWriter out = new PrintWriter(sock.getOutputStream());
+                CmdParser parser = new CmdParser();
+
+                String tmp;
+                boolean success = false;
+                while((tmp=in.readLine()) != null) {
+                    if(parser.parseRemoteClassroomCommand(tmp)) {
+                        execRemoteClassroomCommand(tmp);
+                        success = true;
+                    } else if(parser.parse(tmp)) {
+                        execGeneralCommand(tmp);
+                        success = true;
+                    }
+                }
+
+                out.print(success ? "ok" : "fail");
+                out.flush();
+
+                in.close();
+                out.close();
+
+                sock.close();
+                ss.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+        }
+    }
 }
