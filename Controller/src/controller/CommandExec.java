@@ -30,11 +30,6 @@ import javax.swing.ListSelectionModel;
 
 import controller.Datatypes.Command;
 
-
-/**
- * 
- */
-
 /**
  * Provides functionality to send a command to clients
  * @author Julien Schroeter

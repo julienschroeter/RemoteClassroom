@@ -64,7 +64,7 @@ public class IpaddrHandler {
 	    ipAddrTextfield.setColumns(16);
 	    inputPanel.add(ipAddrTextfield);
 	    
-	    inputPanel.add(new JLabel("Anmerkungen: "));
+	    inputPanel.add(new JLabel("Bezeichnung: "));
 	    final JTextField notesTextfield = new JTextField((entry == null) ? "" : entry.getNotes());
 	    inputPanel.add(notesTextfield);
 	    formFrame.add(inputPanel);
