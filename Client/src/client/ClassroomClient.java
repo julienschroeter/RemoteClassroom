@@ -32,8 +32,8 @@ public class ClassroomClient {
     private void listener() {
         while(true) {
             try {
-                ServerSocket ss = new ServerSocket(PORT);
-                Socket sock = ss.accept();
+                ServerSocket ssock = new ServerSocket(PORT);
+                Socket sock = ssock.accept();
 
                 BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
                 PrintWriter out = new PrintWriter(sock.getOutputStream());
@@ -57,7 +57,7 @@ public class ClassroomClient {
                 out.close();
 
                 sock.close();
-                ss.close();
+                ssock.close();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
