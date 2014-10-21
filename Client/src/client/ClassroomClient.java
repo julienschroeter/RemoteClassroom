@@ -46,8 +46,13 @@ public class ClassroomClient {
             try {
                 ServerSocket ssock = new ServerSocket(Integer.parseInt(_config.getProperty("PORT.DEFAULT")));
                 Socket sock = ssock.accept();
+                String senderIp = sock.getRemoteSocketAddress().toString();
 
-                if(sock.getRemoteSocketAddress().toString().equals(_config.getProperty("IP.CONTROLLER"))) {
+                if(senderIp.startsWith("/")) senderIp = senderIp.substring(1);
+                if(senderIp.indexOf(":") != -1) senderIp = senderIp.split(":")[0];
+
+                if(senderIp.equals(_config.getProperty("IP.CONTROLLER"))) {
+                    System.out.println("Accepted connection");
                     BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
                     PrintWriter out = new PrintWriter(sock.getOutputStream());
                     CmdParser parser = new CmdParser();
@@ -70,7 +75,8 @@ public class ClassroomClient {
 
                     in.close();
                     out.close();
-                }
+                } else
+                    System.out.println("Connection refused: " + senderIp);
                 sock.close();
                 ssock.close();
             } catch (IOException ex) {
