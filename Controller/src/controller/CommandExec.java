@@ -79,12 +79,8 @@ public class CommandExec {
                     _frame.dispose();
                     _cmdExec.executeCommandWindow(new Action() {
                         @Override
-                        public void action(String ip) {
-                            try {
-                                executeCommand(ip, _cmdList.getSelectedValue());
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
+                        public void action(String ip) throws Exception {
+                            executeCommand(ip, _cmdList.getSelectedValue());
                         }
                     });
                 }
@@ -106,12 +102,8 @@ public class CommandExec {
                     _frame.dispose();
                     _cmdExec.executeCommandWindow(new Action() {
                         @Override
-                        public void action(String ip) {
-                            try {
-                                executeCommand(ip, cmd);
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
+                        public void action(String ip) throws Exception {
+                            executeCommand(ip, cmd);
                         }
                     });
 				}
@@ -194,12 +186,9 @@ public class CommandExec {
 		    			for(String ip : ips) {
                             try {
                                 _progressBar.setValue(_progressBar.getValue() + 1);
-                                InetAddress target = InetAddress.getByName(ip);
-                                if(target.isReachable(500)) {
-                                    action.action(ip);
-                                } else
-                                    displayMessage(ip + " - Nicht gefunden");
+                                action.action(ip);
                             } catch (Exception ex) {
+                                displayMessage(ip + " - Nicht gefunden");
                                 ex.printStackTrace();
                             } finally {
                                 execFrame.pack();

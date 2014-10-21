@@ -52,7 +52,6 @@ public class ClassroomClient {
                 if(senderIp.indexOf(":") != -1) senderIp = senderIp.split(":")[0];
 
                 if(senderIp.equals(_config.getProperty("IP.CONTROLLER"))) {
-                    System.out.println("Accepted connection");
                     BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
                     PrintWriter out = new PrintWriter(sock.getOutputStream());
                     CmdParser parser = new CmdParser();

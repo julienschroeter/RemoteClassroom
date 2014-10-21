@@ -41,26 +41,21 @@ public class ClientUpdate {
         if(result == JFileChooser.APPROVE_OPTION) {
             cmdSender.executeCommandWindow(new Action(){
                 @Override
-                public void action(String ip) {
-                    try {
-                        cmdSender.executeCommand(ip, new Command("sys://update"));
-                        cmdSender.sendFile(ip, fileCooser.getSelectedFile().getAbsolutePath());
+                public void action(String ip) throws Exception {
+                    cmdSender.executeCommand(ip, new Command("sys://update"));
+                    cmdSender.sendFile(ip, fileCooser.getSelectedFile().getAbsolutePath());
 
-                        // Shutdown command to restart client application
-                        Statement psGetShutdownCmd = _c.createStatement();
-                        ResultSet rsGetShutdownCmd = psGetShutdownCmd.executeQuery("SELECT * FROM `COMMANDS` WHERE `IDENTIFIER`='SHUTDOWN'");
-                        String cmd = "";
-                        while(rsGetShutdownCmd.next()) {
-                            cmd = rsGetShutdownCmd.getString("COMMAND");
-                        }
-
-                        cmdSender.executeCommand(ip, new Command(cmd));
-
-                        cmdSender.displayMessage("----- " + ip + " wurde erfolgreich aktualisiert -----");
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                    // Shutdown command to restart client application
+                    Statement psGetShutdownCmd = _c.createStatement();
+                    ResultSet rsGetShutdownCmd = psGetShutdownCmd.executeQuery("SELECT * FROM `COMMANDS` WHERE `IDENTIFIER`='SHUTDOWN'");
+                    String cmd = "";
+                    while(rsGetShutdownCmd.next()) {
+                        cmd = rsGetShutdownCmd.getString("COMMAND");
                     }
+
+                    cmdSender.executeCommand(ip, new Command(cmd));
+
+                    cmdSender.displayMessage("----- " + ip + " wurde erfolgreich aktualisiert -----");
                 }
             });
         }

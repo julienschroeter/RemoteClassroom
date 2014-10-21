@@ -3,6 +3,7 @@
  */
 package controller;
 
+
 /**
  * Class which holds data models
  * @author Julien Schroeter
@@ -118,7 +119,7 @@ public class Datatypes {
     }
 
     public static class Action {
-        public void action(String ip) {
+        public void action(String ip) throws Exception {
 
         }
     }
