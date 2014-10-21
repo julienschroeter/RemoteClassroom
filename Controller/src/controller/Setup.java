@@ -18,10 +18,15 @@ public class Setup {
     private static int _nTblsExpected = 3;
     
     private static String[] _tblsCreateQueries = {
-        "CREATE TABLE 'IP_ADDR' ('ID' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , 'IP_ADDR' VARCHAR NOT NULL , 'NOTES' VARCHAR, 'status' BOOL DEFAULT 1)",
-        "CREATE TABLE 'COMMANDS' ('ID' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , 'LABEL' VARCHAR NOT NULL , 'COMMAND' VARCHAR NOT NULL)",
+        "CREATE TABLE 'IP_ADDR' ('ID' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , 'IP_ADDR' VARCHAR NOT NULL , 'NOTES' VARCHAR, 'STATUS' BOOL DEFAULT 1)",
+        "CREATE TABLE 'COMMANDS' ('ID' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , 'IDENTIFIER' VARCHAR , 'LABEL' VARCHAR NOT NULL , 'COMMAND' VARCHAR NOT NULL, 'REQUIRED' BOOL DEFAULT 0)",
         "CREATE TABLE 'SYS_PREFERENCES' ('KEY' VARCHAR NOT NULL  UNIQUE , 'VALUE' VARCHAR)",
-        "INSERT INTO `COMMANDS` (`LABEL`, `COMMAND`) VALUES ('E:\\ formatieren', 'cmd /c start cmd.exe /K \"del e:\\* /s /q && exit \"'), ('Clientanwendung beenden', 'sys://quit'), ('Verfügbarkeit testen', 'sys://hello')"
+        "INSERT INTO `COMMANDS` (`LABEL`,`COMMAND`,`IDENTIFIER`,`REQUIRED`) VALUES ('Verfügbarkeit testen','sys://hello','PING',1)",
+        "INSERT INTO `COMMANDS` (`LABEL`,`COMMAND`) VALUES ('E:\\ formatieren','cmd /c start cmd.exe /K \"del e:\\* /s /q && exit \"')",
+        "INSERT INTO `COMMANDS` (`LABEL`,`COMMAND`,`IDENTIFIER`,`REQUIRED`) VALUES ('Clients nach 2 Minuten herunterfahren', 'cmd /c start cmd.exe /K \"shutdown /t 120 /s && exit \"','SHUTDOWN',1)",
+        "INSERT INTO `COMMANDS` (`LABEL`,`COMMAND`,`IDENTIFIER`,`REQUIRED`) VALUES ('Clientanwendung beenden', 'sys://quit','QUIT',1)",
+        "INSERT INTO `SYS_PREFERENCES` (`KEY`,`VALUE`) VALUES ('PORT_CMD', 6868)",
+        "INSERT INTO `SYS_PREFERENCES` (`KEY`,`VALUE`) VALUES ('PORT_FILE', 6869)"
     };
     
     /**

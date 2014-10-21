@@ -25,6 +25,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import controller.Datatypes.Command;
 
@@ -58,6 +60,17 @@ public class CommandManager {
 		_cmdListModel = new DefaultListModel<Command>();
 		_cmdList = new JList<Command>(_cmdListModel);
 		_cmdList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        _cmdList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent listSelectionEvent) {
+                if(_cmdList.getSelectedIndex() != -1) {
+                    if(_cmdList.getSelectedValue().getRequired())
+                        _btnDelete.setEnabled(false);
+                    else
+                        _btnDelete.setEnabled(true);
+                }
+            }
+        });
 		JScrollPane commandsListPane = new JScrollPane(_cmdList);
 		commandsListPane.setPreferredSize(new Dimension(300,200));
 		_frame.add(commandsListPane, BorderLayout.WEST);
@@ -100,7 +113,8 @@ public class CommandManager {
 				_cmdListModel.addElement(new Command(
 					rsGetCommands.getInt("ID"),
 					rsGetCommands.getString("LABEL"),
-					rsGetCommands.getString("COMMAND")
+					rsGetCommands.getString("COMMAND"),
+                    rsGetCommands.getBoolean("REQUIRED")
 				));
 		    }
 		} catch (SQLException e) {

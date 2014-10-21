@@ -150,7 +150,8 @@ public class ClassroomController {
 		commandmenu.add(new AbstractAction("Befehl ausf\u00fchren") {
 		    @Override
 		    public void actionPerformed(ActionEvent ae) {
-			    new CommandExec(_c);
+			    CommandExec cmdExec = new CommandExec(_c);
+                cmdExec.showSelection();
 		    }
 		});
 		
@@ -166,7 +167,7 @@ public class ClassroomController {
         commandmenu.add(new AbstractAction("Clientsoftware aktualisieren") {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-
+                new ClientUpdate(_c);
             }
         });
 		
@@ -244,25 +245,4 @@ public class ClassroomController {
 		}
 	
     }
-    	
-    	/*
-    	private void loadIpAddr()
-    	{
-    		try {
-    			BufferedReader in = new BufferedReader(new FileReader(_ipsFile));
-    			String ip;
-    			while((ip = in.readLine()) != null)
-    			{
-    				_ipAddrs.append(ip + "\n");
-    				
-    				ip = in.readLine();
-    			}
-    		in.close();
-    		} catch (FileNotFoundException e) {
-    			e.printStackTrace();
-    		} catch (IOException e) {
-    				e.printStackTrace();
-    		}
-    	}*/
-
 }

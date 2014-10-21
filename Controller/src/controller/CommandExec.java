@@ -4,10 +4,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -29,6 +26,7 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 
 import controller.Datatypes.Command;
+import controller.Datatypes.Action;
 
 /**
  * Provides functionality to send a command to clients
@@ -43,7 +41,11 @@ public class CommandExec {
     private JFrame _frame;
     private DefaultListModel<Command> _cmdListModel;
     private JList<Command> _cmdList;
-    private JButton _btnExec, _btnInsertCmd;
+
+
+    private final JTextArea _msgField = new JTextArea();
+    final JProgressBar _progressBar = new JProgressBar();
+
     
     /**
      * Displays a dialog to select the command to be sent
@@ -51,7 +53,9 @@ public class CommandExec {
      */
     public CommandExec(Connection c) {
 		this._c = c;
-		
+    }
+
+    public void showSelection() {
 		_frame = new JFrame("Befehle verwalten");
 		_frame.setLayout(new BorderLayout());
 		
@@ -64,33 +68,56 @@ public class CommandExec {
 		
 		JPanel btnPanel = new JPanel();
 		btnPanel.setLayout(new BoxLayout(btnPanel, BoxLayout.Y_AXIS));
-		_btnExec = new JButton("Ausf\u00fchren");
-		_btnExec.addActionListener(new ActionListener() {
+		JButton btnExec = new JButton("Ausf\u00fchren");
+        btnExec.addActionListener(new ActionListener() {
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
-			if(_cmdList.getSelectedIndex() == -1)
-			    JOptionPane.showMessageDialog(_frame, "Einen Befehl zum Ausf\u00fchren ausw\u00e4hlen.", "Fehler", JOptionPane.ERROR_MESSAGE);
-			else
-			    _cmdExec.executeCommand(_cmdList.getSelectedValue());
-		    }
+                if(_cmdList.getSelectedIndex() == -1)
+                    JOptionPane.showMessageDialog(_frame, "Einen Befehl zum Ausf\u00fchren ausw\u00e4hlen.", "Fehler", JOptionPane.ERROR_MESSAGE);
+                else {
+                    _msgField.append("Befehl ausf\u00fchren: \n" + _cmdList.getSelectedValue().getCommand() + "\n");
+                    _frame.dispose();
+                    _cmdExec.executeCommandWindow(new Action() {
+                        @Override
+                        public void action(String ip) {
+                            try {
+                                executeCommand(ip, _cmdList.getSelectedValue());
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
+                }
+            }
 		});
-		btnPanel.add(_btnExec);
+		btnPanel.add(btnExec);
 		
-		_btnInsertCmd = new JButton("Befehl eingeben");
-		_btnInsertCmd.addActionListener(new ActionListener() {
+		JButton btnInsertCmd = new JButton("Befehl eingeben");
+		btnInsertCmd.addActionListener(new ActionListener() {
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
 				String cmdStr = JOptionPane.showInputDialog("Befehl eingeben: ");
 				if(cmdStr.length() < 1)
 				    JOptionPane.showMessageDialog(_frame, "Einen Befehl zum Ausf\u00fchren eingeben.", "Fehler", JOptionPane.ERROR_MESSAGE);
 				else {
-				    Command cmd = new Command();
+				    final Command cmd = new Command();
 				    cmd.setCommand(cmdStr);
-				    _cmdExec.executeCommand(cmd);
+                    _msgField.append("Befehl ausf\u00fchren: \n" + cmd.getCommand() + "\n");
+                    _frame.dispose();
+                    _cmdExec.executeCommandWindow(new Action() {
+                        @Override
+                        public void action(String ip) {
+                            try {
+                                executeCommand(ip, cmd);
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
 				}
 		    }
 		});
-		btnPanel.add(_btnInsertCmd);
+		btnPanel.add(btnInsertCmd);
 		
 		_frame.add(btnPanel);
 		
@@ -115,7 +142,8 @@ public class CommandExec {
 				_cmdListModel.addElement(new Command(
 					rsGetCommands.getInt("ID"),
 					rsGetCommands.getString("LABEL"),
-					rsGetCommands.getString("COMMAND")
+					rsGetCommands.getString("COMMAND"),
+                    rsGetCommands.getBoolean("REQUIRED")
 				));
 		    }
 		} catch (SQLException e) {
@@ -124,29 +152,24 @@ public class CommandExec {
     }
     
     /**
-     * Sends command and returns status and error messages
-     * @param cmd Command
-     * @see controller.Datatypes.Command
+     * Returns status and error messages
+     * @param action Method which holds commands and files to send to clients
+     * @see controller.Datatypes.Action
      */
-    private void executeCommand(final Command cmd) {
-		final int done = 0;
-		_frame.dispose();
-		
+    public void executeCommandWindow(final Action action) {
 		final JFrame execFrame = new JFrame("Befehl ausf\u00fchren ...");
 		execFrame.setLayout(new BoxLayout(execFrame.getContentPane(), BoxLayout.Y_AXIS));
-		
-		final JTextArea msgField = new JTextArea("Befehl ausf\u00fchren: \n" + cmd.getCommand() + "\n");
-		msgField.setRows(4);
-		msgField.setColumns(30);
-		msgField.setEditable(false);
-		execFrame.add(msgField);
+
+		_msgField.setRows(4);
+		_msgField.setColumns(30);
+		_msgField.setEditable(false);
+		execFrame.add(_msgField);
 		
 		JPanel controlsPanel = new JPanel(new FlowLayout());
 		final JButton ctrlBtn = new JButton("Vorgang starten");
 		controlsPanel.add(ctrlBtn);
-		
-		final JProgressBar progressBar = new JProgressBar();
-		controlsPanel.add(progressBar);
+
+		controlsPanel.add(_progressBar);
 		
 		execFrame.add(controlsPanel);
 		execFrame.pack();
@@ -156,7 +179,6 @@ public class CommandExec {
 	    		@Override
 	    		public void run() {
 	    		    ctrlBtn.setEnabled(false);
-	    		    Socket sender = null;
 	    		    List<String> ips = new ArrayList<String>();
 	    		    
 	    		    try {
@@ -167,50 +189,23 @@ public class CommandExec {
 		        		while(rsGetIps.next())
 		        		    ips.add(rsGetIps.getString("IP_ADDR"));
 		        		
-		        		progressBar.setMaximum(ips.size());
+		        		_progressBar.setMaximum(ips.size());
 		    			
 		    			for(String ip : ips) {
                             try {
-                                progressBar.setValue(progressBar.getValue()+1);
+                                _progressBar.setValue(_progressBar.getValue() + 1);
                                 InetAddress target = InetAddress.getByName(ip);
                                 if(target.isReachable(500)) {
-                                    sender = new Socket(ip, 6868);
-                                    PrintWriter out = new PrintWriter(sender.getOutputStream());
-                                    out.print(cmd.getCommand());
-                                    out.flush();
-                                    out.close();
-
-                                    // Getting feedback
-                                    BufferedReader in = new BufferedReader(new InputStreamReader(sender.getInputStream()));
-                                    if( ! in.readLine().equals("ok")) {
-                                        msgField.append("\n" + ip + " - Ung\u00fcltige Antwort");
-                                    }
-                                    in.close();
-                                } else {
-                                    msgField.append("\n" + ip + " - Nicht gefunden");
-                                }
-                                execFrame.pack();
-                            } catch (ConnectException ex) {
-                                msgField.append("\n" + ip + " - Keine Antwort");
+                                    action.action(ip);
+                                } else
+                                    displayMessage(ip + " - Nicht gefunden");
+                            } catch (Exception ex) {
                                 ex.printStackTrace();
-                            } catch (UnknownHostException e) {
-                                msgField.append("\n" + ip + " - Keine Antwort");
-                                e.printStackTrace();
-                            } catch (NullPointerException ex) {
-                                ex.printStackTrace();
-                            } catch (SocketException ex) {
-                                ex.printStackTrace();
-                            }finally {
+                            } finally {
                                 execFrame.pack();
                             }
                         }
-		    			
-		    			sender.close();
-	    		    } catch (IOException e) {
-                        JOptionPane.showMessageDialog(null, "Wir haben ein Problem! [IOException]");
-                        e.printStackTrace();
-                    } catch (SQLException e1) {
-                        JOptionPane.showMessageDialog(null, "Wir haben ein Problem! [SQLException]");
+	    		    } catch (SQLException e1) {
                         e1.printStackTrace();
                     } finally {
 		    			ctrlBtn.setText("Dialog schlie\u00dfen");
@@ -222,7 +217,7 @@ public class CommandExec {
 		    			    }
 		    			});
 	    		    }
-	    		}
+	       		}
 		});
 		
 		ctrlBtn.addActionListener(new ActionListener() {
@@ -231,5 +226,45 @@ public class CommandExec {
 		    	th.start();
 		    }
 		});
+    }
+
+    public void executeCommand(String ip, Command cmd) throws Exception {
+        Socket sender = new Socket(ip, Integer.parseInt(Configuration.getProperty(_c, "PORT_CMD")));
+        sender.setKeepAlive(true);
+        PrintWriter out = new PrintWriter(sender.getOutputStream(), true);
+        out.println(cmd.getCommand());
+        out.flush();
+
+        // Getting feedback
+        BufferedReader in = new BufferedReader(new InputStreamReader(sender.getInputStream()));
+        if( ! in.readLine().equals("ok")) {
+            displayMessage(ip + " - Ung\u00fcltige Antwort");
+        }
+        out.close();
+        in.close();
+        sender.close();
+    }
+
+    public void sendFile(String ip, String filepath) throws Exception {
+        ServerSocket ssock = new ServerSocket(Integer.parseInt(Configuration.getProperty(_c, "PORT_FILE")));
+        Socket sock = ssock.accept();
+        PrintStream sockOut = new PrintStream(sock.getOutputStream());
+
+        FileInputStream fileIn = new FileInputStream(filepath);
+        byte[] b = new byte[1];
+
+        while((fileIn.read(b)) != -1) {
+            sockOut.write(b);
+            sockOut.flush();
+        }
+
+        sockOut.close();
+        sock.close();
+        ssock.close();
+        fileIn.close();
+    }
+
+    public void displayMessage(String message) {
+        _msgField.append("\n" + message);
     }
 }
