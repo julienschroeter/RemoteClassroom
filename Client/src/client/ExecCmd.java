@@ -34,7 +34,6 @@ public class ExecCmd {
                     currentDirectory = currentDirectory.substring(0, currentDirectory.length()-(currentDirectory.length() - currentDirectory.lastIndexOf("/")));
 
                     URL jarfile = new URL("jar:file://" + currentDirectory + "/ClientUpdate.jar!/");
-                    System.out.println(jarfile);
                     URLClassLoader classLoader = new URLClassLoader(new URL[]{ jarfile });
 
                     Class updateClass = classLoader.loadClass("clientUpdate.Init");

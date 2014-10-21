@@ -4,10 +4,12 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Properties;
 
 /**
  * Initializing client update process
@@ -16,11 +18,17 @@ import java.net.Socket;
 public class Init implements Runnable {
     private JProgressBar progressBar;
     private JLabel statusLabel;
+    private Properties _config = new Properties();
 
     public Init() {
-        this.initializeUpdateFrame();
-        Thread th = new Thread(this);
-        th.start();
+        try {
+            _config.load(new FileInputStream("RemoteClassroom.conf"));
+            this.initializeUpdateFrame();
+            Thread th = new Thread(this);
+            th.start();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void initializeUpdateFrame() {
@@ -49,12 +57,10 @@ public class Init implements Runnable {
     @Override
     public void run() {
         try {
-            ServerSocket ssock = new ServerSocket(6869);
-            Socket sock = ssock.accept();
+            Socket sock = new Socket(_config.getProperty("IP.CONTROLLER"), Integer.parseInt(_config.getProperty("PORT.FILE")));
 
             // Receiving file Client.jar
             String fileToUpdate = Init.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            System.out.println(fileToUpdate);
             fileToUpdate = fileToUpdate.substring(0, fileToUpdate.length()-(fileToUpdate.length() - fileToUpdate.lastIndexOf("/")));
             fileToUpdate = fileToUpdate.substring(0, fileToUpdate.length() - 1);
             fileToUpdate = fileToUpdate.substring(0, fileToUpdate.length()-(fileToUpdate.length() - fileToUpdate.lastIndexOf("/"))) + "/Client.jar";
@@ -74,7 +80,6 @@ public class Init implements Runnable {
 
             fileOut.close();
             sock.close();
-            ssock.close();
             sockInBytes.close();
             statusLabel.setText("Softwareaktualisierung beendet; Rechner wird in wenigen Minuten heruntergefahren");
             progressBar.setIndeterminate(false);

@@ -1,11 +1,9 @@
 package client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Properties;
 
 import static client.ExecCmd.execGeneralCommand;
 import static client.ExecCmd.execRemoteClassroomCommand;
@@ -15,15 +13,29 @@ import static client.ExecCmd.execRemoteClassroomCommand;
  * @author TimoNeon, Julien Schroeter
  */
 public class ClassroomClient {
-    public final int PORT = 6868;
+    private static Properties _config = new Properties();
 
     /**
      * Starter for application
      * @param args
      */
     public static void main(String[] args) {
-        ClassroomClient app = new ClassroomClient();
-        app.listener();
+        try {
+            _config.load(new FileInputStream("RemoteClassroom.conf"));
+            // Create config file if needed
+            if(_config.isEmpty()) {
+                _config.setProperty("UPDATER.V","");
+                _config.setProperty("PORT.DEFAULT","6868");
+                _config.setProperty("PORT.FILE","6869");
+                _config.setProperty("IP.CONTROLLER","");
+                _config.store(new FileOutputStream("RemoteClassroom.conf"), "");
+            }
+
+            ClassroomClient app = new ClassroomClient();
+            app.listener();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -32,30 +44,33 @@ public class ClassroomClient {
     private void listener() {
         while(true) {
             try {
-                ServerSocket ssock = new ServerSocket(PORT);
+                ServerSocket ssock = new ServerSocket(Integer.parseInt(_config.getProperty("PORT.DEFAULT")));
                 Socket sock = ssock.accept();
 
-                BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-                PrintWriter out = new PrintWriter(sock.getOutputStream());
-                CmdParser parser = new CmdParser();
+                if(sock.getRemoteSocketAddress().toString().equals(_config.getProperty("IP.CONTROLLER"))) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+                    PrintWriter out = new PrintWriter(sock.getOutputStream());
+                    CmdParser parser = new CmdParser();
 
-                String tmp;
-                while((tmp=in.readLine()) != null) {
-                    if(parser.parseRemoteClassroomCommand(tmp)) {
-                        execRemoteClassroomCommand(tmp);
-                        out.print("ok");
-                    } else if(parser.parse(tmp)) {
-                        execGeneralCommand(tmp);
-                        out.print("ok");
-                    } else {
-                        out.print("fail");
+                    String tmp;
+                    while((tmp=in.readLine()) != null) {
+                        if(parser.parseRemoteClassroomCommand(tmp)) {
+                            execRemoteClassroomCommand(tmp);
+                            out.println("ok");
+                            out.flush();
+                        } else if(parser.parse(tmp)) {
+                            execGeneralCommand(tmp);
+                            out.println("ok");
+                            out.flush();
+                        } else {
+                            out.println("fail");
+                            out.flush();
+                        }
                     }
+
+                    in.close();
+                    out.close();
                 }
-                out.flush();
-
-                in.close();
-                out.close();
-
                 sock.close();
                 ssock.close();
             } catch (IOException ex) {
