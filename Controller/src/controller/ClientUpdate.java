@@ -21,8 +21,10 @@ public class ClientUpdate {
     public ClientUpdate(Connection c) {
         this._c = c;
         final CommandExec cmdSender = new CommandExec(_c);
+        cmdSender.displayMessage("Clientsoftware aktualisieren: ");
 
         final JFileChooser fileCooser = new JFileChooser();
+        fileCooser.setDialogTitle("Aktualisierte Client.jar ausw\u00e4hlen");
         fileCooser.setMultiSelectionEnabled(false);
         fileCooser.setFileFilter(new FileFilter() {
             @Override

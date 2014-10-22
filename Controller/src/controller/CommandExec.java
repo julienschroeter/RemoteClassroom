@@ -75,7 +75,7 @@ public class CommandExec {
                 if(_cmdList.getSelectedIndex() == -1)
                     JOptionPane.showMessageDialog(_frame, "Einen Befehl zum Ausf\u00fchren ausw\u00e4hlen.", "Fehler", JOptionPane.ERROR_MESSAGE);
                 else {
-                    _msgField.append("Befehl ausf\u00fchren: \n" + _cmdList.getSelectedValue().getCommand() + "\n");
+                    displayMessage("Befehl ausf\u00fchren: \n" + _cmdList.getSelectedValue().getCommand() + "\n");
                     _frame.dispose();
                     _cmdExec.executeCommandWindow(new Action() {
                         @Override
@@ -92,13 +92,13 @@ public class CommandExec {
 		btnInsertCmd.addActionListener(new ActionListener() {
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
-				String cmdStr = JOptionPane.showInputDialog("Befehl eingeben: ");
+				String cmdStr = JOptionPane.showInputDialog(_frame, "Befehl eingeben: ", "cmd /c start cmd.exe /K \" &&exit\"");
 				if(cmdStr.length() < 1)
 				    JOptionPane.showMessageDialog(_frame, "Einen Befehl zum Ausf\u00fchren eingeben.", "Fehler", JOptionPane.ERROR_MESSAGE);
 				else {
 				    final Command cmd = new Command();
 				    cmd.setCommand(cmdStr);
-                    _msgField.append("Befehl ausf\u00fchren: \n" + cmd.getCommand() + "\n");
+                    displayMessage("Befehl ausf\u00fchren: \n" + cmd.getCommand() + "\n");
                     _frame.dispose();
                     _cmdExec.executeCommandWindow(new Action() {
                         @Override
@@ -168,45 +168,45 @@ public class CommandExec {
 		execFrame.setVisible(true);
 		
 		final Thread th = new Thread(new Runnable() {
-	    		@Override
-	    		public void run() {
-	    		    ctrlBtn.setEnabled(false);
-	    		    List<String> ips = new ArrayList<String>();
-	    		    
-	    		    try {
-		    			// Get ip addresses
-		        		Statement stGetIps = _c.createStatement();
-		        		ResultSet rsGetIps = stGetIps.executeQuery("SELECT `IP_ADDR` FROM `IP_ADDR` WHERE `STATUS`=1");
-		        		
-		        		while(rsGetIps.next())
-		        		    ips.add(rsGetIps.getString("IP_ADDR"));
-		        		
-		        		_progressBar.setMaximum(ips.size());
-		    			
-		    			for(String ip : ips) {
-                            try {
-                                _progressBar.setValue(_progressBar.getValue() + 1);
-                                action.action(ip);
-                            } catch (Exception ex) {
-                                displayMessage(ip + " - Nicht gefunden");
-                                ex.printStackTrace();
-                            } finally {
-                                execFrame.pack();
-                            }
+            @Override
+            public void run() {
+                ctrlBtn.setEnabled(false);
+                List<String> ips = new ArrayList<String>();
+
+                try {
+                    // Get ip addresses
+                    Statement stGetIps = _c.createStatement();
+                    ResultSet rsGetIps = stGetIps.executeQuery("SELECT `IP_ADDR` FROM `IP_ADDR` WHERE `STATUS`=1");
+
+                    while(rsGetIps.next())
+                        ips.add(rsGetIps.getString("IP_ADDR"));
+
+                    _progressBar.setMaximum(ips.size());
+
+                    for(String ip : ips) {
+                        try {
+                            action.action(ip);
+                        } catch (Exception ex) {
+                            displayMessage(ip + " - Nicht gefunden");
+                            ex.printStackTrace();
+                        } finally {
+                            _progressBar.setValue(_progressBar.getValue() + 1);
+                            execFrame.pack();
                         }
-	    		    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                    } finally {
-		    			ctrlBtn.setText("Dialog schlie\u00dfen");
-		    			ctrlBtn.setEnabled(true);
-		    			ctrlBtn.addActionListener(new ActionListener() {
-		    			    @Override
-		    			    public void actionPerformed(ActionEvent e) {
-		    				execFrame.dispose();
-		    			    }
-		    			});
-	    		    }
-	       		}
+                    }
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                } finally {
+                    ctrlBtn.setText("Dialog schlie\u00dfen");
+                    ctrlBtn.setEnabled(true);
+                    ctrlBtn.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                        execFrame.dispose();
+                        }
+                    });
+                }
+            }
 		});
 		
 		ctrlBtn.addActionListener(new ActionListener() {
@@ -217,6 +217,13 @@ public class CommandExec {
 		});
     }
 
+    /**
+     * Sends command to execute to client
+     * @param ip String IP address
+     * @param cmd Command to execute
+     * @throws Exception
+     * @see controller.Datatypes.Command
+     */
     public void executeCommand(String ip, Command cmd) throws Exception {
         Socket sender = new Socket(ip, Integer.parseInt(Configuration.getProperty(_c, "PORT_CMD")));
         sender.setKeepAlive(true);
@@ -234,6 +241,12 @@ public class CommandExec {
         sender.close();
     }
 
+    /**
+     * Sends file to client.
+     * @param ip String IP address
+     * @param filepath String Path to local file
+     * @throws Exception
+     */
     public void sendFile(String ip, String filepath) throws Exception {
         ServerSocket ssock = new ServerSocket(Integer.parseInt(Configuration.getProperty(_c, "PORT_FILE")));
         Socket sock = ssock.accept();
@@ -254,6 +267,6 @@ public class CommandExec {
     }
 
     public void displayMessage(String message) {
-        _msgField.append("\n" + message);
+        _msgField.append(message + "\n");
     }
 }
