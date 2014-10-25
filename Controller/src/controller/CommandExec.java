@@ -30,7 +30,7 @@ import controller.Datatypes.Action;
 
 /**
  * Provides functionality to send a command to clients
- * @author Julien Schroeter
+ * @author Julien Schroeter, TimoNeon
  *
  */
 public class CommandExec {
@@ -202,7 +202,7 @@ public class CommandExec {
                     ctrlBtn.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                        execFrame.dispose();
+                            execFrame.dispose();
                         }
                     });
                 }

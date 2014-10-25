@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
 
 /**
  * Checks database validity and creates required tables
- * @author Julien Schroeter
+ * @author Julien Schroeter, TimoNeon
  */
 public class Setup {
     private static Connection _c;

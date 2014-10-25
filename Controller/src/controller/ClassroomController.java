@@ -2,6 +2,8 @@ package controller;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -80,8 +82,14 @@ public class ClassroomController {
 		filemenu.add(new AbstractAction("Beenden") {
 		    @Override
 		    public void actionPerformed(ActionEvent ae) {
-			    System.exit(0);
-		    }
+                try {
+                    _c.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                } finally {
+                    System.exit(0);
+                }
+            }
 		});
 		
 		_menubar.add(filemenu);
@@ -182,8 +190,18 @@ public class ClassroomController {
 		_frame.setSize(_frameSize);
 		_frame.setJMenuBar(_menubar);
 		
-		// TODO stop database on close
-		_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		_frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                try {
+                    _c.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                } finally {
+                    System.exit(0);
+                }
+            }
+        });
 		
 		// INITIALIZE JTABLE FOR IP_ADDR
 		String [] cols = {
