@@ -66,7 +66,7 @@ public class ClassroomController {
 		filemenu.add(new AbstractAction("\u00dcber ...") {
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
-			    JOptionPane.showMessageDialog(_frame, "ClassroomController\n-DEV BUILD-\n(c) Copyright 2014 \n TimoNeon und Julien Schroeter", "\u00dcber ClassroomController", JOptionPane.PLAIN_MESSAGE);
+			    JOptionPane.showMessageDialog(_frame, "ClassroomController\n(c) Copyright 2014 \n Timo Bauer und Julien Schroeter", "\u00dcber ClassroomController", JOptionPane.PLAIN_MESSAGE);
 		    }
 		});
 		
