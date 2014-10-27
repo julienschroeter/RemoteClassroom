@@ -1,0 +1,6 @@
+# Projekt RemoteClassroom
+## Installationsanweisungen
+### Controller
+Kopieren Sie Controller.jar an eine beliebige Stelle. In gleichem Ordner muss die JDBC-SQLite Datenbanktreiber-Datei liegen. Diese kann hier (https://bitbucket.org/xerial/sqlite-jdbc/downloads) heruntergeladen werden. Verwendet wird Version 3.7.2, das bedeutet, Sie sollten nach M&ouml;glichkeit Datei "sqlite-jdbc-3.7.2.jar" herunterladen. Damit der Controller den Treiber findet, MUSS die Treiberdatei auch genau so hei&szlig;en oder Sie kompilieren den Controller selbst mit einer anderen JDBC-SQLite-Treiberdatei unter anderem Namen, wie in README.md beschrieben.
+### Client
+Kopieren Sie die Client-Anwendung in den Autostart, zusammen mit ClientUpdate.jar (diese Datei muss ebenfalls genauso hei&szlig;em) und der Konfigurationsdatei RemoteClassroom.conf . Bearbeiten Sie die Konfigurationsdatei und spezifizieren Sie hier die IP-Adresse des Controllers. Es wird empfohlen die Clients vor dem Produktivit&auml;tseinsatz zu pr&uuml;fen.
