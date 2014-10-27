@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
 
 /**
  * Checks database validity and creates required tables
- * @author Julien Schroeter, TimoNeon
+ * @author Julien Schroeter, Timo Bauer
  */
 public class Setup {
     private static Connection _c;
@@ -21,7 +21,7 @@ public class Setup {
         "CREATE TABLE 'IP_ADDR' ('ID' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , 'IP_ADDR' VARCHAR NOT NULL , 'NOTES' VARCHAR, 'STATUS' BOOL DEFAULT 1)",
         "CREATE TABLE 'COMMANDS' ('ID' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , 'IDENTIFIER' VARCHAR , 'LABEL' VARCHAR NOT NULL , 'COMMAND' VARCHAR NOT NULL, 'REQUIRED' BOOL DEFAULT 0)",
         "CREATE TABLE 'SYS_PREFERENCES' ('KEY' VARCHAR NOT NULL  UNIQUE , 'VALUE' VARCHAR)",
-        "INSERT INTO `COMMANDS` (`LABEL`,`COMMAND`,`IDENTIFIER`,`REQUIRED`) VALUES ('Verfügbarkeit testen','sys://hello','PING',1)",
+        "INSERT INTO `COMMANDS` (`LABEL`,`COMMAND`,`IDENTIFIER`,`REQUIRED`) VALUES ('Verf\u00fcgbarkeit testen','sys://hello','PING',1)",
         "INSERT INTO `COMMANDS` (`LABEL`,`COMMAND`) VALUES ('E:\\ formatieren','cmd /c start cmd.exe /K \"del e:\\* /s /q && exit \"')",
         "INSERT INTO `COMMANDS` (`LABEL`,`COMMAND`,`IDENTIFIER`,`REQUIRED`) VALUES ('Clients nach 2 Minuten herunterfahren', 'cmd /c start cmd.exe /K \"shutdown /t 120 /s && exit \"','SHUTDOWN',1)",
         "INSERT INTO `COMMANDS` (`LABEL`,`COMMAND`,`IDENTIFIER`,`REQUIRED`) VALUES ('Clientanwendung beenden', 'sys://quit','QUIT',1)",

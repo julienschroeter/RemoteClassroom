@@ -24,7 +24,7 @@ public class Init {
     /* Database */
     private static Connection _c = null;
     private static String dbFile = "data.sqlite";
-    private static String dbPath = System.getProperty("user.home") + System.getProperty("file.separator") + "AppData" + System.getProperty("file.separator") + "Roaming" + System.getProperty("file.separator") + ".REMOTECLASSROOMCONTROLLER" + System.getProperty("file.separator");
+    private static String dbPath = System.getProperty("user.home") + File.separator + "AppData" + File.separator + "Roaming" + File.separator + ".REMOTECLASSROOMCONTROLLER" + File.separator;
     
     public static void main(String[] args) {
 

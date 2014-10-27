@@ -10,7 +10,7 @@ import static client.ExecCmd.execRemoteClassroomCommand;
 
 /**
  * Starter for application
- * @author TimoNeon, Julien Schroeter
+ * @author Timo Bauer, Julien Schroeter
  */
 public class ClassroomClient {
     private static Properties _config = new Properties();

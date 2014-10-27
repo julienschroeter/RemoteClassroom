@@ -36,10 +36,7 @@ public class Init implements Runnable {
         updateFrame.setTitle("Softwareaktualisierung ...");
         updateFrame.setSize(860, 80);
         updateFrame.setResizable(false);
-        updateFrame.setLocation(
-                (Toolkit.getDefaultToolkit().getScreenSize().width / 2) - (updateFrame.getSize().width / 2),
-                (Toolkit.getDefaultToolkit().getScreenSize().height / 2) - (updateFrame.getSize().height / 2)
-        );
+        updateFrame.setLocationRelativeTo(null);
         updateFrame.setLayout(new BoxLayout(updateFrame.getContentPane(), BoxLayout.Y_AXIS));
 
         progressBar = new JProgressBar();

@@ -1,11 +1,3 @@
-/**
-/**
- * 
- */
-/**
-/**
- * 
- */
 package controller;
 
 import java.awt.GridLayout;

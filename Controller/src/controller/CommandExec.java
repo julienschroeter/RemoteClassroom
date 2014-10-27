@@ -30,7 +30,7 @@ import controller.Datatypes.Action;
 
 /**
  * Provides functionality to send a command to clients
- * @author Julien Schroeter, TimoNeon
+ * @author Julien Schroeter, Timo Bauer
  *
  */
 public class CommandExec {

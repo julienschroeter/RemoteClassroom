@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author TimoNeon, Julien Schroeter
+ * @author Timo Bauer, Julien Schroeter
  */
 public class ExecCmd {
 
