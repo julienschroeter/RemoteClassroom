@@ -18,8 +18,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 import controller.Datatypes.IPAddr;
 
@@ -66,7 +69,7 @@ public class ClassroomController {
 		filemenu.add(new AbstractAction("\u00dcber ...") {
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
-			    JOptionPane.showMessageDialog(_frame, "ClassroomController\n(c) Copyright 2014 \n Timo Bauer und Julien Schroeter", "\u00dcber ClassroomController", JOptionPane.PLAIN_MESSAGE);
+			    JOptionPane.showMessageDialog(_frame, "ClassroomController\n(c) Copyright 2015 \n Julien Schroeter, Timo Bauer", "\u00dcber ClassroomController", JOptionPane.PLAIN_MESSAGE);
 		    }
 		});
 		
@@ -100,8 +103,10 @@ public class ClassroomController {
 		editmenu.add(new AbstractAction("IP-Adresse bearbeiten"){
 		    @Override
 		    public void actionPerformed(ActionEvent ae) {
-                if(_ipTbl.getSelectedRowCount() != 1) {
+                if(_ipTbl.getSelectedRowCount() < 1) {
                     JOptionPane.showMessageDialog(_frame, "Bitte w\u00e4hlen Sie einen Eintrag aus.", "Fehler", JOptionPane.ERROR_MESSAGE);
+                } else if(_ipTbl.getSelectedRowCount() > 1) {
+                    JOptionPane.showMessageDialog(_frame, "Sie können nur einen Eintrag bearbeiten.", "Fehler", JOptionPane.ERROR_MESSAGE);
                 } else {
                     int id = (Integer)_ipTbl.getValueAt(
                         _ipTbl.getSelectedRow(),
@@ -129,22 +134,23 @@ public class ClassroomController {
 		editmenu.add(new AbstractAction("IP-Adresse l\u00f6schen"){
 		    @Override
 		    public void actionPerformed(ActionEvent ae) {
-                if(_ipTbl.getSelectedRowCount() != 1) {
+                if(_ipTbl.getSelectedRowCount() < 1) {
                     JOptionPane.showMessageDialog(_frame, "Bitte w\u00e4hlen Sie einen Eintrag aus.", "Fehler", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    int deleteConfirmation = JOptionPane.showConfirmDialog(_frame, "Wollen Sie diese IP-Adresse wirklich l\u00f6schen?", "Best\u00e4tigung erforderlich", JOptionPane.YES_NO_OPTION);
+                    int deleteConfirmation = JOptionPane.showConfirmDialog(_frame, "Wollen Sie die ausgew\u00e4lte(n) IP-Adresse(n) wirklich l\u00f6schen?", "Best\u00e4tigung erforderlich", JOptionPane.YES_NO_OPTION);
                     if(deleteConfirmation == JOptionPane.OK_OPTION) {
-                        int id = (Integer)_ipTbl.getValueAt(
-                        _ipTbl.getSelectedRow(),
-                        0);
-                        try {
-                            PreparedStatement psDeleteEntry = _c.prepareStatement("DELETE FROM `IP_ADDR` WHERE `ID`=?");
-                            psDeleteEntry.setInt(1, id);
-                            psDeleteEntry.execute();
-                            controller.initializeData();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
+                        for(int r : _ipTbl.getSelectedRows()) {
+                            int id = (Integer) _ipTbl.getValueAt(r, 0);
+
+                            try {
+                                PreparedStatement psDeleteEntry = _c.prepareStatement("DELETE FROM `IP_ADDR` WHERE `ID`=?");
+                                psDeleteEntry.setInt(1, id);
+                                psDeleteEntry.execute();
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
                         }
+                        controller.initializeData();
                     }
                 }
             }
@@ -206,19 +212,46 @@ public class ClassroomController {
 		// INITIALIZE JTABLE FOR IP_ADDR
 		String [] cols = {
 			"ID",
+            "STATUS",
 			"IP_ADDR",
-			"NOTES",
-			"STATUS"
+			"NOTES"
 		};
 		_ipTblModel = new DefaultTableModel(cols, 0) {
 		    @Override
 		    public boolean isCellEditable(int row, int col) {
-			    return false;
+			    return (col==1 || col==3);
 		    }
-		};
-		
+            @Override
+            public Class getColumnClass(int columnIndex) {
+                if(columnIndex == 1) {
+                    return Boolean.class;
+                }
+                return String.class;
+            }
+            @Override
+            public void fireTableCellUpdated(int row, int column) {
+                Object data = _ipTbl.getValueAt(row, column);
+                int entryId = (Integer) _ipTbl.getValueAt(row, 0);
+                try {
+                    PreparedStatement psUpdate;
+                    if(column == 1) {
+                        psUpdate = _c.prepareStatement("UPDATE `IP_ADDR` SET `STATUS`=? WHERE `ID`=?");
+                        psUpdate.setBoolean(1, ((Boolean)data).booleanValue());
+                        psUpdate.setInt(2, entryId);
+                    } else {
+                        psUpdate = _c.prepareStatement("UPDATE `IP_ADDR` SET `NOTES`=? WHERE `ID`=?");
+                        psUpdate.setString(1, data.toString());
+                        psUpdate.setInt(2, entryId);
+                    }
+                    psUpdate.execute();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
 		_ipTbl = new JTable(_ipTblModel);
-		_ipTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		_ipTbl.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		_ipTbl.setPreferredSize(_frameSize);
 		_ipTbl.getTableHeader().setReorderingAllowed(false);
 		
@@ -229,10 +262,15 @@ public class ClassroomController {
 		ipCol.setPreferredWidth(0);
 		ipCol.setResizable(false);
 
+        TableColumn statusCol = _ipTbl.getColumn("STATUS");
+        statusCol.setHeaderValue("");
+        statusCol.setMaxWidth(16);
+        statusCol.setPreferredWidth(16);
+
         _ipTbl.getColumn("IP_ADDR").setHeaderValue("IP Adresse");
         _ipTbl.getColumn("NOTES").setHeaderValue("Bezeichnung");
-        _ipTbl.getColumn("STATUS").setHeaderValue("");
-		
+
+
 		JScrollPane scrollpane = new JScrollPane(_ipTbl);
 		
 		_frame.add(scrollpane);
@@ -253,9 +291,9 @@ public class ClassroomController {
 		    while(rsIPAddr.next()) {
                 _ipTblModel.addRow(new Object[]{
                     rsIPAddr.getInt("ID"),
+                    rsIPAddr.getBoolean("STATUS"),
                     rsIPAddr.getString("IP_ADDR"),
-                    rsIPAddr.getString("NOTES"),
-                    rsIPAddr.getBoolean("STATUS") ? "" : "Deaktiviert"
+                    rsIPAddr.getString("NOTES")
                 });
 		    }
 		} catch (SQLException e) {
